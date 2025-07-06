@@ -8,11 +8,11 @@
 www.carekobooks.space {
   import cloudflare
 
-  handle_path /api* {
+  handle_path /api/* {
     reverse_proxy carekobooks-backend:8081 {
       header_up Host {host}
-      header_up X-Real-IP {remote_host}
-      header_up X-Forwarded-For {remote_host}
+      header_up X-Real-IP {remote}
+      header_up X-Forwarded-For {remote}
       header_up X-Forwarded-Proto {scheme}
       header_up Connection {>Connection}
       header_up Upgrade {>Upgrade}
@@ -22,20 +22,20 @@ www.carekobooks.space {
     }
   }
 
-  handle_path /auth* {
+  handle_path /auth/* {
     reverse_proxy carekobooks-keycloak:8080 {
       header_up Host {host}
-      header_up X-Real-IP {remote_host}
-      header_up X-Forwarded-For {remote_host}
+      header_up X-Real-IP {remote}
+      header_up X-Forwarded-For {remote}
       header_up X-Forwarded-Proto {scheme}
     }
   }
 
-  handle_path /s3* {
+  handle_path /s3/* {
     reverse_proxy carekobooks-minio:9000 {
       header_up Host {host}
-      header_up X-Real-IP {remote_host}
-      header_up X-Forwarded-For {remote_host}
+      header_up X-Real-IP {remote}
+      header_up X-Forwarded-For {remote}
       header_up X-Forwarded-Proto {scheme}
     }
   }
@@ -43,9 +43,11 @@ www.carekobooks.space {
   handle {
     reverse_proxy carekobooks-frontend:3000 {
       header_up Host {host}
-      header_up X-Real-IP {remote_host}
-      header_up X-Forwarded-For {remote_host}
+      header_up X-Real-IP {remote}
+      header_up X-Forwarded-For {remote}
       header_up X-Forwarded-Proto {scheme}
+      header_up Connection {>Connection}
+      header_up Upgrade {>Upgrade}
     }
   }
 }
