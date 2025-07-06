@@ -1,0 +1,51 @@
+(cloudflare) {
+  encode gzip
+  tls {
+    dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+  }
+}
+
+www.carekobooks.space {
+  import cloudflare
+
+  handle_path /api* {
+    reverse_proxy carekobooks-backend:8081 {
+      header_up Host {host}
+      header_up X-Real-IP {remote_host}
+      header_up X-Forwarded-For {remote_host}
+      header_up X-Forwarded-Proto {scheme}
+      header_up Connection {>Connection}
+      header_up Upgrade {>Upgrade}
+      header_down Access-Control-Allow-Origin *
+      header_down Access-Control-Allow-Methods "GET, POST, OPTIONS, PUT, DELETE"
+      header_down Access-Control-Allow-Headers "Content-Type, Authorization"
+    }
+  }
+
+  handle_path /auth* {
+    reverse_proxy carekobooks-keycloak:8080 {
+      header_up Host {host}
+      header_up X-Real-IP {remote_host}
+      header_up X-Forwarded-For {remote_host}
+      header_up X-Forwarded-Proto {scheme}
+    }
+  }
+
+  handle_path /s3* {
+    reverse_proxy carekobooks-minio:9000 {
+      header_up Host {host}
+      header_up X-Real-IP {remote_host}
+      header_up X-Forwarded-For {remote_host}
+      header_up X-Forwarded-Proto {scheme}
+    }
+  }
+
+  handle {
+    reverse_proxy carekobooks-frontend:3000 {
+      header_up Host {host}
+      header_up X-Real-IP {remote_host}
+      header_up X-Forwarded-For {remote_host}
+      header_up X-Forwarded-Proto {scheme}
+    }
+  }
+}
