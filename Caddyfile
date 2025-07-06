@@ -14,12 +14,15 @@ www.carekobooks.space {
       header_up X-Real-IP {remote}
       header_up X-Forwarded-For {remote}
       header_up X-Forwarded-Proto {scheme}
-      header_up Connection {>Connection}
-      header_up Upgrade {>Upgrade}
-      header_down Access-Control-Allow-Origin *
-      header_down Access-Control-Allow-Methods "GET, POST, OPTIONS, PUT, DELETE"
-      header_down Access-Control-Allow-Headers "Content-Type, Authorization"
+      header_up X-Forwarded-Prefix /api
     }
+  }
+
+  handle_path /api/ws/* {
+      reverse_proxy backend:8080 {
+          header_up Upgrade {>Upgrade}
+          header_up Connection {>Connection}
+      }
   }
 
   handle_path /auth/* {
@@ -27,6 +30,9 @@ www.carekobooks.space {
       header_up Host {host}
       header_up X-Real-IP {remote}
       header_up X-Forwarded-For {remote}
+      header_up X-Forwarded-Host {host}
+      header_up X-Forwarded-Server {host}
+      header_up X-Forwarded-Port {server_port}
       header_up X-Forwarded-Proto {scheme}
     }
   }
@@ -46,8 +52,6 @@ www.carekobooks.space {
       header_up X-Real-IP {remote}
       header_up X-Forwarded-For {remote}
       header_up X-Forwarded-Proto {scheme}
-      header_up Connection {>Connection}
-      header_up Upgrade {>Upgrade}
     }
   }
 }
